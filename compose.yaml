@@ -1,6 +1,7 @@
 
 services:
 ###> doctrine/doctrine-bundle ###
+  mailhog
   database:
     image: postgres:${POSTGRES_VERSION:-16}-alpine
     environment:
