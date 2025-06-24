@@ -13,7 +13,8 @@ class SecurityController extends AbstractController
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->getUser()) {
-            return $this->redirectToRoute('app_post');
+            // Redirect to home page that exists
+            return $this->redirectToRoute('app_main');
         }
 
         // get the login error if there is one
@@ -32,4 +33,5 @@ class SecurityController extends AbstractController
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
+
 }
