@@ -39,6 +39,9 @@ class Post
     #[ORM\OneToMany(targetEntity: PostLike::class, mappedBy: 'post', orphanRemoval: true)]
     private Collection $postLikes;
 
+    #[ORM\Column(length: 255)]
+    private ?string $image = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -204,5 +207,17 @@ class Post
             }
         }
         return false;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(string $image): static
+    {
+        $this->image = $image;
+
+        return $this;
     }
 }

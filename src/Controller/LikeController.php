@@ -16,7 +16,7 @@ class LikeController extends AbstractController
 {
     #[Route('/post/{id}/react/{type}', name: 'app_post_react', methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function react(Post $post, string $type, EntityManagerInterface $em, PostLikeRepository $likeRepo): JsonResponse
+    public function react(Post $post, string $type, EntityManagerInterface $entityManager, PostLikeRepository $likeRepo): JsonResponse
     {
         if (!in_array($type, ['like', 'dislike'])) {
             return $this->json(['error' => 'Invalid reaction type'], 400);
@@ -28,11 +28,11 @@ class LikeController extends AbstractController
         if ($existingReaction) {
             // Если реакция та же - удаляем ее
             if ($existingReaction->getType() === $type) {
-                $em->remove($existingReaction);
+                $entityManager->remove($existingReaction);
             } else {
                 // Если реакция другая - меняем ее
                 $existingReaction->setType($type);
-                $em->persist($existingReaction);
+                $entityManager->persist($existingReaction);
             }
         } else {
             // Если реакции не было - создаем новую
@@ -40,10 +40,10 @@ class LikeController extends AbstractController
             $newReaction->setUser($user);
             $newReaction->setPost($post);
             $newReaction->setType($type);
-            $em->persist($newReaction);
+            $entityManager->persist($newReaction);
         }
 
-        $em->flush();
+        $entityManager->flush();
 
         // Считаем новые количества лайков/дизлайков
         $likes = $likeRepo->count(['post' => $post, 'type' => 'like']);
