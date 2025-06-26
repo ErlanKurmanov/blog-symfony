@@ -4,7 +4,9 @@
         {% for post in posts %}
             <div class="card" style="width: 80%; ">
                 {% if post.image %}
-{#                    <img src="{{ asset('uploads/posts/' ~ post.image) }}" class="card-img-top" alt="Post image">#}
+                    <img src="{{ post.image }}"
+                         class="card-img-top"
+                         alt="{{ post.image ? 'Image for ' ~ post.title : 'No image available' }}">
                 {% else %}
                     <img src="https://via.placeholder.com/800x400?text=No+Image" class="card-img-top" alt="No image">
                 {% endif %}

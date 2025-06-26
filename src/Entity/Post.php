@@ -42,6 +42,12 @@ class Post
     #[ORM\Column(length: 255)]
     private ?string $image = null;
 
+    #[ORM\Column(type: 'integer')]
+    private int $likesCount = 0;
+
+    #[ORM\Column(type: 'integer')]
+    private int $dislikesCount = 0;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -160,9 +166,7 @@ class Post
      */
     public function getLikesCount(): int
     {
-        return $this->postLikes->filter(function(PostLike $like) {
-            return $like->getType() === 'like';
-        })->count();
+        return $this->likesCount;
     }
 
     /**
@@ -170,9 +174,7 @@ class Post
      */
     public function getDislikesCount(): int
     {
-        return $this->postLikes->filter(function(PostLike $like) {
-            return $like->getType() === 'dislike';
-        })->count();
+        return $this->dislikesCount;
     }
 
     /**
@@ -219,5 +221,39 @@ class Post
         $this->image = $image;
 
         return $this;
+    }
+
+    public function setLikesCount(int $likesCount): static
+    {
+        $this->likesCount = $likesCount;
+
+        return $this;
+    }
+
+    public function setDislikesCount(int $dislikesCount): static
+    {
+        $this->dislikesCount = $dislikesCount;
+
+        return $this;
+    }
+
+    public function incrementLikes(): void
+    {
+        $this->likesCount++;
+    }
+
+    public function decrementLikes(): void
+    {
+        $this->likesCount--;
+    }
+
+    public function incrementDislikes(): void
+    {
+        $this->dislikesCount++;
+    }
+
+    public function decrementDislikes(): void
+    {
+        $this->dislikesCount--;
     }
 }
