@@ -4,8 +4,10 @@ namespace App\Form;
 
 use App\Entity\Post;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class PostForm extends AbstractType
 {
@@ -14,12 +16,16 @@ class PostForm extends AbstractType
         $builder
             ->add('title')
             ->add('content')
-//            ->add('createdAt', null, [
-//                'widget' => 'single_text',
-//            ])
-//            ->add('updatedAt', null, [
-//                'widget' => 'single_text',
-//            ])
+            ->add('imageFile', VichImageType::class, [
+                'label' => 'Post Image',
+                'required' => false,
+                'allow_delete' => true,
+                'delete_label' => 'Remove image',
+                'download_uri' => false,
+                'image_uri' => true,
+                'attr' => ['class' => 'form-control']
+            ]);
+
         ;
     }
 

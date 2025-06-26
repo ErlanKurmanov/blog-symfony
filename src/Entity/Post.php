@@ -7,9 +7,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Post
 {
     #[ORM\Id]
@@ -39,8 +42,13 @@ class Post
     #[ORM\OneToMany(targetEntity: PostLike::class, mappedBy: 'post', orphanRemoval: true)]
     private Collection $postLikes;
 
-    #[ORM\Column(length: 255)]
+    // This stores the filename in the database
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
+
+    // This is the actual file object (not persisted to database)
+    #[Vich\UploadableField(mapping: 'post_images', fileNameProperty: 'image')]
+    private ?File $imageFile = null;
 
     #[ORM\Column(type: 'integer')]
     private int $likesCount = 0;
@@ -216,24 +224,21 @@ class Post
         return $this->image;
     }
 
-    public function setImage(string $image): static
+    public function setImage(?string $image): static
     {
         $this->image = $image;
-
         return $this;
     }
 
     public function setLikesCount(int $likesCount): static
     {
         $this->likesCount = $likesCount;
-
         return $this;
     }
 
     public function setDislikesCount(int $dislikesCount): static
     {
         $this->dislikesCount = $dislikesCount;
-
         return $this;
     }
 
@@ -255,5 +260,27 @@ class Post
     public function decrementDislikes(): void
     {
         $this->dislikesCount--;
+    }
+
+    /**
+     * Set the image file
+     */
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    /**
+     * Get the image file
+     */
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
     }
 }

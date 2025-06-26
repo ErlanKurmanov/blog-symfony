@@ -1,21 +1,31 @@
-
 <div id="post-feed">
     {% if posts is not empty %}
         {% for post in posts %}
-            <div class="card" style="width: 80%; ">
+            <div class="card mb-4" style="width: 100%; max-width: 800px; margin: 0 auto;">
                 {% if post.image %}
-                    <img src="{{ post.image }}"
+                    <img src="{{ '/images/' ~ post.image }}"
                          class="card-img-top"
-                         alt="{{ post.image ? 'Image for ' ~ post.title : 'No image available' }}">
+                         alt="Image for {{ post.title }}"
+                         style="height: 300px; object-fit: cover;">
                 {% else %}
-                    <img src="https://via.placeholder.com/800x400?text=No+Image" class="card-img-top" alt="No image">
+                    <img src="https://via.placeholder.com/800x300?text=No+Image"
+                         class="card-img-top"
+                         alt="No image"
+                         style="height: 300px; object-fit: cover;">
                 {% endif %}
+
                 <div class="card-body">
                     <h5 class="card-title">{{ post.title }}</h5>
                     <h6 class="card-subtitle mb-2 text-muted">
-                        by {{ post.author.email }} on {{ post.createdAt|date('Y-m-d H:i') }}
+                        by {{ post.author.email }} on {{ post.createdAt|date('M j, Y') }}
                     </h6>
-                    <p class="card-text">{{ post.content|slice(0, 200) }}...</p>
+                    <p class="card-text">
+                        {% if post.content|length > 200 %}
+                            {{ post.content|slice(0, 200)|nl2br }}...
+                        {% else %}
+                            {{ post.content|nl2br }}
+                        {% endif %}
+                    </p>
 
                     <div class="d-flex justify-content-between align-items-center">
                         <a href="{{ path('app_post_show', {'id': post.id}) }}" class="btn btn-primary">Read More</a>
@@ -33,13 +43,13 @@
                     </div>
                 </div>
             </div>
-            <br/>
         {% endfor %}
     {% else %}
-        <div class="alert alert-info">
+        <div class="alert alert-info text-center">
             <h4>Your feed is empty!</h4>
             <p>Find some users to follow to see their posts here.</p>
-            <a href="{{ path('app_post_index') }}" class="btn btn-primary">Browse All Posts</a>
+            <a href="{{ path('app_post_new') }}" class="btn btn-primary me-2">Create New Post</a>
+            <a href="{{ path('app_post_index') }}" class="btn btn-outline-primary">Browse All Posts</a>
         </div>
     {% endif %}
 </div>
