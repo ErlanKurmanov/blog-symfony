@@ -21,12 +21,11 @@ class PostForm extends AbstractType
                 'required' => false,
                 'allow_delete' => true,
                 'delete_label' => 'Remove image',
-                'download_uri' => false,
-                'image_uri' => true,
+                'download_uri' => true,
+                'download_label' => 'Download',
+                'image_uri' => false,
                 'attr' => ['class' => 'form-control']
             ]);
-
-        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

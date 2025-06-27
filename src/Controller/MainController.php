@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Repository\PostRepository;
+use App\Service\Main\MainServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -11,20 +13,23 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class MainController extends AbstractController
 {
+    public function __construct(
+        private readonly PostRepository $postRepository,
+        private readonly MainServiceInterface $mainService,
+    )
+    {
+    }
+
     #[Route('/', name: 'app_main')]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function index(PostRepository $postRepository): Response
+    public function index(): Response
     {
-        /** @var \App\Entity\User $user */
         $user = $this->getUser();
-
-        // Get followed people's posts
         $following = $user->getFollowing();
 
         $posts = [];
-        // If the user subscribed to someone, search its posts
         if (!$following->isEmpty()) {
-            $posts = $postRepository->findByAuthors($following->toArray());
+            $posts = $this->postRepository->findByAuthors($following->toArray());
         }
 
         return $this->render('main/index.html.twig', [
@@ -32,27 +37,17 @@ class MainController extends AbstractController
         ]);
     }
 
-    #[Route('/feed', name: 'app_feed_chunk', methods: ['GET'])]
+    #[Route('/following-feed', name: 'app_following_feed_chunk', methods: ['GET'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function getFeedChunk(Request $request, PostRepository $postRepository): Response
+    public function getFollowingPostsChunk(Request $request, PostRepository $postRepository): JsonResponse
     {
-        /** @var \App\Entity\User $user */
         $user = $this->getUser();
-        $following = $user->getFollowing();
 
-        if ($following->isEmpty()) {
-            return new Response('', 204); // No content
-        }
+        $offset = $request->query->getInt('offset', 0);
+        $limit = $request->query->getInt('limit', 5);
 
-        $page = $request->query->getInt('page', 1);
-        $posts = $postRepository->findByAuthorsPaginated($following->toArray(), $page);
+        $data = $this->mainService->getFollowingChunk($offset, $limit, $user);
 
-        if (empty($posts)) {
-            return new Response('', 204); // No more posts to load
-        }
-
-        return $this->render('main/_post_chunk.html.twig', [
-            'posts' => $posts,
-        ]);
+        return new JsonResponse($data);
     }
 }

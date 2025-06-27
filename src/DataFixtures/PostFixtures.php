@@ -87,11 +87,9 @@ class PostFixtures extends Fixture implements DependentFixtureInterface
             ],
         ];
 
-        // Get users for post authors
-        $users = $manager->getRepository(User::class)->findAll();
-
-        if (empty($users)) {
-            throw new \Exception('No users found. Please load UserFixtures first.');
+        $users = [];
+        for ($i = 0; $i < 12; $i++) {
+            $users[] = $this->getReference('user_' . $i, User::class);
         }
 
         foreach ($posts as $index => $postData) {
@@ -101,11 +99,9 @@ class PostFixtures extends Fixture implements DependentFixtureInterface
             $post->setImage($postData['image']);
             $post->setCreatedAt($postData['createdAt']);
 
-            // Assign random author from available users
             $randomUser = $users[array_rand($users)];
             $post->setAuthor($randomUser);
 
-            // Set random like/dislike counts to make posts more realistic
             $likesCount = rand(0, 50);
             $dislikesCount = rand(0, 10);
             $post->setLikesCount($likesCount);
@@ -113,11 +109,9 @@ class PostFixtures extends Fixture implements DependentFixtureInterface
 
             $manager->persist($post);
 
-            // Create reference for potential use in other fixtures
             $this->addReference('post_' . $index, $post);
         }
 
-        // Create a few additional posts with shorter content
         $shortPosts = [
             [
                 'title' => 'Quick Tip: Git Aliases',
@@ -142,13 +136,11 @@ class PostFixtures extends Fixture implements DependentFixtureInterface
             $post->setContent($postData['content']);
             $post->setImage($postData['image']);
 
-            // These are recent posts
             $post->setCreatedAt(new \DateTimeImmutable('-' . rand(1, 3) . ' hours'));
 
             $randomUser = $users[array_rand($users)];
             $post->setAuthor($randomUser);
 
-            // Lower engagement for shorter posts
             $likesCount = rand(0, 20);
             $dislikesCount = rand(0, 5);
             $post->setLikesCount($likesCount);

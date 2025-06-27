@@ -14,4 +14,18 @@ class AppFixtures extends Fixture
 
         $manager->flush();
     }
+
+    public function getDependencies(): array
+    {
+        return [
+            UserFixtures::class,
+            PostFixtures::class,
+            PostLikeFixtures::class,
+        ];
+    }
+
+    public static function getGroups(): array
+    {
+        return ['dev', 'test'];
+    }
 }

@@ -17,10 +17,10 @@
     {% block javascripts %}
             {{ vite_entry_script_tags('app') }}
             {{ vite_entry_script_tags('react') }}
+            {{ vite_entry_script_tags('infiniteScroll') }}
     {% endblock %}
 </head>
 <body>
-<!-- Navigation bar -->
 {{ include('_partials/navbar.html.twig') }}
 
 <!-- Flash messages -->
@@ -54,8 +54,6 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Post-related JavaScript (only load when needed) -->
-{#{% block post_scripts %}#}
-{#{% endblock %}#}
+
 </body>
 </html>

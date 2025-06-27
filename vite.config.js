@@ -13,7 +13,8 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 app: "./assets/app.js",
-                react: "./assets/react.js"
+                react: "./assets/react.js",
+                infiniteScroll: "./assets/infiniteScroll.js"
             },
         }
     },

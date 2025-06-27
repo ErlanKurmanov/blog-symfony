@@ -2,6 +2,7 @@
 
 namespace App\Service\Like;
 
+use App\DTO\LikeDto;
 use App\Entity\Post;
 use App\Entity\PostLike;
 use App\Entity\User;
@@ -14,6 +15,15 @@ class LikeService implements LikeServiceInterface
         private EntityManagerInterface $entityManager,
         private PostLikeRepository $likeRepo,
     ){}
+
+    /**
+     * Toggles a user's reaction (like or dislike) on a given post.
+     *
+     * @param User $user
+     * @param Post $post
+     * @param string $type
+     * @return LikeDto
+     */
     public function toggleReaction(User $user, Post $post, string $type)
     {
         if (!in_array($type, ['like', 'dislike'])) {
@@ -23,7 +33,6 @@ class LikeService implements LikeServiceInterface
         $existingReaction = $this->likeRepo->findOneBy(['user' => $user, 'post' => $post]);
 
         if ($existingReaction) {
-            // Если реакция та же - удаляем ее
             if ($existingReaction->getType() === $type) {
                 $this->entityManager->remove($existingReaction);
 
@@ -33,7 +42,6 @@ class LikeService implements LikeServiceInterface
                     $post->decrementDislikes();
                 }
             } else {
-                // Если реакция другая - меняем ее
                 if ($existingReaction->getType() === 'like') {
                     $post->decrementLikes();
                     $post->incrementDislikes();
@@ -46,7 +54,6 @@ class LikeService implements LikeServiceInterface
                 $this->entityManager->persist($existingReaction);
             }
         } else {
-            // Если реакции не было - создаем новую
             $newReaction = new PostLike();
             $newReaction->setUser($user);
             $newReaction->setPost($post);
@@ -60,11 +67,11 @@ class LikeService implements LikeServiceInterface
             }
         }
 
-
         $this->entityManager->flush();
-        return [
-            'likes' => $post->getLikesCount(),
-            'dislikes' => $post->getDislikesCount(),
-        ];
+
+        $likes = $post->getLikesCount();
+        $dislikes = $post->getDislikesCount();
+        return new LikeDto($likes, $dislikes);
+
     }
 }

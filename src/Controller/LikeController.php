@@ -12,17 +12,24 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class LikeController extends AbstractController
 {
+    public function __construct(
+        private readonly LikeServiceInterface $likeService,
+    )
+    {
+    }
+
     #[Route('/post/{id}/react/{type}', name: 'app_post_react', methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function react(Post $post, string $type, LikeServiceInterface $likeService): JsonResponse
+    public function react(Post $post, string $type): JsonResponse
     {
         try {
             $user = $this->getUser();
-            $counts = $likeService->toggleReaction($user, $post, $type);
+            $counts = $this->likeService->toggleReaction($user, $post, $type);
+            dump($counts);
             return $this->json([
                 'message' => 'Reaction updated',
-                'likes' => $counts['likes'],
-                'dislikes' => $counts['dislikes'],
+                'likes' => $counts->getLikes(),
+                'dislikes' => $counts->getDislikes(),
             ]);
 
         } catch (\InvalidArgumentException $e) {
