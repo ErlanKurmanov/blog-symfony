@@ -25,7 +25,6 @@ class LikeController extends AbstractController
         try {
             $user = $this->getUser();
             $counts = $this->likeService->toggleReaction($user, $post, $type);
-            dump($counts);
             return $this->json([
                 'message' => 'Reaction updated',
                 'likes' => $counts->getLikes(),

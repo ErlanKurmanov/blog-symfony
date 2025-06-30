@@ -80,7 +80,6 @@ final class PostController extends AbstractController
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function edit(Request $request, Post $post): Response
     {
-        // Check if current user is the author
         if (!$post->isAuthor($this->getUser())) {
             $this->addFlash('error', 'You can only edit your own posts.');
             return $this->redirectToRoute('app_post_index');

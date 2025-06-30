@@ -4,8 +4,9 @@ namespace App\Service\Like;
 
 use App\Entity\Post;
 use App\Entity\User;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 interface LikeServiceInterface
 {
-    public function toggleReaction(User $user, Post $post, string $type);
+    public function toggleReaction(UserInterface $user, Post $post, string $type);
 }

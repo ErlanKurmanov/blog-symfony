@@ -8,12 +8,13 @@ use App\Entity\PostLike;
 use App\Entity\User;
 use App\Repository\PostLikeRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class LikeService implements LikeServiceInterface
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private PostLikeRepository $likeRepo,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly PostLikeRepository     $likeRepo,
     ){}
 
     /**
@@ -24,7 +25,7 @@ class LikeService implements LikeServiceInterface
      * @param string $type
      * @return LikeDto
      */
-    public function toggleReaction(User $user, Post $post, string $type)
+    public function toggleReaction(UserInterface $user, Post $post, string $type): LikeDto
     {
         if (!in_array($type, ['like', 'dislike'])) {
             throw new \InvalidArgumentException('Invalid reaction type');

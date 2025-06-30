@@ -6,11 +6,9 @@ class InfiniteScrollPosts {
         this.hasMore = true;
         this.postFeed = document.getElementById('post-feed');
 
-        // Configure endpoint based on feed type
-        this.feedType = options.feedType || 'all'; // 'all' or 'following'
+        this.feedType = options.feedType || 'all';
         this.endpoint = this.getFeedEndpoint();
 
-        // Initialize only if post-feed element exists
         if (this.postFeed) {
             this.init();
         }
@@ -27,14 +25,11 @@ class InfiniteScrollPosts {
     }
 
     init() {
-        // Load initial posts (assuming they're already loaded from server)
         this.offset = this.postFeed.children.length;
 
-        // Add scroll event listener
         this.scrollHandler = this.handleScroll.bind(this);
         window.addEventListener('scroll', this.scrollHandler);
 
-        // Add loading indicator
         this.createLoadingIndicator();
     }
 
@@ -52,12 +47,10 @@ class InfiniteScrollPosts {
     }
 
     handleScroll() {
-        // Check if user scrolled near bottom of page
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const windowHeight = window.innerHeight;
         const documentHeight = document.documentElement.scrollHeight;
 
-        // Trigger when user is 200px from bottom
         const threshold = 200;
 
         if (scrollTop + windowHeight >= documentHeight - threshold) {
@@ -66,7 +59,6 @@ class InfiniteScrollPosts {
     }
 
     async loadMorePosts() {
-        // Prevent multiple simultaneous requests
         if (this.isLoading || !this.hasMore) {
             return;
         }
@@ -191,7 +183,6 @@ class InfiniteScrollPosts {
         this.postFeed.parentNode.appendChild(errorDiv);
     }
 
-    // Method to manually trigger loading (useful for retry)
     retry() {
         const existingError = document.querySelector('.infinite-scroll-error');
         if (existingError) {
@@ -200,7 +191,6 @@ class InfiniteScrollPosts {
         this.loadMorePosts();
     }
 
-    // Cleanup method
     destroy() {
         if (this.scrollHandler) {
             window.removeEventListener('scroll', this.scrollHandler);
@@ -215,23 +205,18 @@ class InfiniteScrollPosts {
     }
 }
 
-// Auto-initialize based on current page
 document.addEventListener('DOMContentLoaded', function() {
-    // Detect feed type based on current page
     let feedType = 'all';
 
-    // Check if we're on the main/following feed page
     if (window.location.pathname === '/' || window.location.pathname.includes('main')) {
         feedType = 'following';
     } else if (window.location.pathname.includes('post')) {
         feedType = 'all';
     }
 
-    // Create global instance with appropriate feed type
     window.infiniteScrollPosts = new InfiniteScrollPosts({ feedType: feedType });
 });
 
-// Export for module usage (if needed)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = InfiniteScrollPosts;
 }

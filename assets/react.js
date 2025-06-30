@@ -21,15 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
 
-                // Обновляем счетчики
                 container.querySelector('.likes-count').textContent = data.likes;
                 container.querySelector('.dislikes-count').textContent = data.dislikes;
 
-                // Подсветка кнопки (активна/неактивна)
                 container.querySelectorAll('.react-btn').forEach(btn => btn.classList.remove('active'));
                 btn.classList.add('active');
 
-                // Иконка заполненная или нет
                 const icon = btn.querySelector('i');
                 if (type === 'like') {
                     icon.className = 'bi bi-heart-fill';

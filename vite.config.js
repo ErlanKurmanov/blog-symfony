@@ -15,6 +15,7 @@ export default defineConfig({
                 app: "./assets/app.js",
                 react: "./assets/react.js",
                 infiniteScroll: "./assets/infiniteScroll.js"
+
             },
         }
     },
