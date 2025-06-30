@@ -17,7 +17,7 @@ class PostLike
 
     #[ORM\Column(length: 10)]
     private ?string $type = null;
-    
+
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;

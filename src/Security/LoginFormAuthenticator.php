@@ -35,7 +35,6 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         $email = $request->request->get('email');
         $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
 
-        // Check if user exists and is verified
         $user = $this->userRepository->findOneBy(['email' => $email]);
         if ($user && !$user->isVerified()) {
             throw new CustomUserMessageAuthenticationException('Please verify your email address before logging in.');
@@ -57,8 +56,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        // Redirect to dashboard instead of non-existent post index
-        return new RedirectResponse($this->urlGenerator->generate('app_dashboard'));
+        return new RedirectResponse($this->urlGenerator->generate('app_main'));
     }
 
     protected function getLoginUrl(Request $request): string

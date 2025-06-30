@@ -1,4 +1,28 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{# templates/post/_form.html.twig #}
+{{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+<div class="mb-3">
+    {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+    {{ form_errors(form.title) }}
+</div>
+
+<div class="mb-3">
+    {{ form_label(form.content, null, {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': 5}}) }}
+    {{ form_errors(form.content) }}
+</div>
+
+<div class="mb-3">
+    {{ form_label(form.imageFile, null, {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+    {{ form_errors(form.imageFile) }}
+    {% if form.vars.data.image %}
+        <div class="mt-2">
+            <img src="{{ '/images/' ~ form.vars.data.image }}" alt="Current image" class="img-thumbnail" style="max-width: 200px;">
+            <p class="text-muted small">Current image: {{ form.vars.data.image }}</p>
+        </div>
+    {% endif %}
+</div>
+
+<button class="btn btn-primary">{{ button_label|default('Save') }}</button>
 {{ form_end(form) }}

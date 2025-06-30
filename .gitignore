@@ -22,3 +22,9 @@
 /.idea
 /.env
 
+
+###> pentatrion/vite-bundle ###
+/node_modules/
+/public/build/
+/public/images/
+###< pentatrion/vite-bundle ###

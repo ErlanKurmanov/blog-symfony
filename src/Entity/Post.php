@@ -7,9 +7,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Post
 {
     #[ORM\Id]
@@ -38,6 +41,18 @@ class Post
      */
     #[ORM\OneToMany(targetEntity: PostLike::class, mappedBy: 'post', orphanRemoval: true)]
     private Collection $postLikes;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image = null;
+
+    #[Vich\UploadableField(mapping: 'post_images', fileNameProperty: 'image')]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(type: 'integer')]
+    private int $likesCount = 0;
+
+    #[ORM\Column(type: 'integer')]
+    private int $dislikesCount = 0;
 
     public function __construct()
     {
@@ -157,9 +172,7 @@ class Post
      */
     public function getLikesCount(): int
     {
-        return $this->postLikes->filter(function(PostLike $like) {
-            return $like->getType() === 'like';
-        })->count();
+        return $this->likesCount;
     }
 
     /**
@@ -167,9 +180,7 @@ class Post
      */
     public function getDislikesCount(): int
     {
-        return $this->postLikes->filter(function(PostLike $like) {
-            return $like->getType() === 'dislike';
-        })->count();
+        return $this->dislikesCount;
     }
 
     /**
@@ -204,5 +215,68 @@ class Post
             }
         }
         return false;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
+        return $this;
+    }
+
+    public function setLikesCount(int $likesCount): static
+    {
+        $this->likesCount = $likesCount;
+        return $this;
+    }
+
+    public function setDislikesCount(int $dislikesCount): static
+    {
+        $this->dislikesCount = $dislikesCount;
+        return $this;
+    }
+
+    public function incrementLikes(): void
+    {
+        $this->likesCount++;
+    }
+
+    public function decrementLikes(): void
+    {
+        $this->likesCount--;
+    }
+
+    public function incrementDislikes(): void
+    {
+        $this->dislikesCount++;
+    }
+
+    public function decrementDislikes(): void
+    {
+        $this->dislikesCount--;
+    }
+
+    /**
+     * Set the image file
+     */
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    /**
+     * Get the image file
+     */
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
     }
 }

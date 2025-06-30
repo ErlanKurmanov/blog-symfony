@@ -33,13 +33,11 @@ class RegistrationController extends AbstractController
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
 
-            // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // generate a signed url and email it to the user
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                 (new TemplatedEmail())
                     ->from(new Address('no-reply@mywebsite.com', 'Blog Mail Bot'))
@@ -48,7 +46,6 @@ class RegistrationController extends AbstractController
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 
-            // Don't auto-login the user - redirect to a confirmation page instead
             $this->addFlash('success', 'Registration successful! Please check your email to verify your account before logging in.');
 
             return $this->redirectToRoute('app_login');
@@ -62,7 +59,6 @@ class RegistrationController extends AbstractController
     #[Route('/verify/email', name: 'app_verify_email')]
     public function verifyUserEmail(Request $request, TranslatorInterface $translator, EntityManagerInterface $entityManager): Response
     {
-        // FIXED: Use the user ID from the URL instead of email
         $id = $request->query->get('id');
 
         if (!$id) {
@@ -70,7 +66,6 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_register');
         }
 
-        // Get the User from the database using the ID
         $user = $entityManager->getRepository(User::class)->find($id);
 
         if (!$user) {
@@ -78,7 +73,6 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_register');
         }
 
-        // Check if user is already verified
         if ($user->isVerified()) {
             $this->addFlash('success', 'Your email address is already verified.');
             return $this->redirectToRoute('app_login');

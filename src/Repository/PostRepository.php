@@ -16,71 +16,61 @@ class PostRepository extends ServiceEntityRepository
         parent::__construct($registry, Post::class);
     }
 
+
+
     /**
-     * Finds posts by a collection of authors, ordered by creation date.
-     * @param array $authors
-     * @return Post[]
+     * Find posts by specific authors (existing method - make sure it exists)
      */
-    public function findByAuthors(array $authors): array
+    public function findByAuthors(array $authors, int $limit = 5, int $offset = 0): array
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.author IN (:authors)')
+            ->where('p.author IN (:authors)')
             ->setParameter('authors', $authors)
             ->orderBy('p.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
             ->getQuery()
             ->getResult();
     }
 
-    /**
-     * Finds posts by authors with pagination
-     * @param array $authors
-     * @param int $page
-     * @param int $limit
-     * @return Post[]
-     */
-    public function findByAuthorsPaginated(array $authors, int $page = 1, int $limit = 10): array
+    public function countByAuthors(array $authors): int
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.author IN (:authors)')
+            ->select('COUNT(p.id)')
+            ->where('p.author IN (:authors)')
             ->setParameter('authors', $authors)
-            ->orderBy('p.createdAt', 'DESC')
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
             ->getQuery()
-            ->getResult();
+            ->getSingleScalarResult();
     }
-
     /**
-     * Find all posts ordered by creation date (for all feed)
-     * @param int $page
-     * @param int $limit
-     * @return Post[]
+     * Retrieves the 5 most recent posts.
+     *
+     * @return Post[] Returns an array of Post objects
      */
-    public function findAllPaginated(int $page = 1, int $limit = 10): array
+    public function findLatestPosts(int $limit = 5, int $offset = 0): array
     {
         return $this->createQueryBuilder('p')
-            ->orderBy('p.createdAt', 'DESC')
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+        ->orderBy('p.createdAt', 'DESC')
+        ->setMaxResults($limit)
+        ->setFirstResult(0)
+        ->getQuery()
+        ->getResult();
     }
 
-    /**
-     * Find posts by specific user
-     * @param mixed $user
-     * @return Post[]
-     */
-    public function findByUser($user): array
+    public function countAllPosts(): int
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.author = :user')
-            ->setParameter('user', $user)
-            ->orderBy('p.createdAt', 'DESC')
+            ->select('COUNT(p.id)')
             ->getQuery()
-            ->getResult();
+            ->getSingleScalarResult();
     }
 
+//    public function findLatestPostOfFollowing()
+//    {
+//        return $this->createQueryBuilder('p')
+//
+//
+//    }
 //    /**
 //     * @return Post[] Returns an array of Post objects
 //     */

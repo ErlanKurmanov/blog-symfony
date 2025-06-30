@@ -7,44 +7,8 @@
         <h1>My Feed - Subscriptions</h1>
         <p class="text-muted">Posts from people you follow</p>
 
-        <div id="post-feed">
-            {% if posts is not empty %}
-                {% for post in posts %}
-                    <div class="card my-3">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ post.title }}</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">
-                                by {{ post.author.email }} on {{ post.createdAt|date('Y-m-d H:i') }}
-                            </h6>
-                            <p class="card-text">{{ post.content|slice(0, 200) }}...</p>
+        {{ include ('_partials/post_item.html.twig')}}
 
-                            <div class="d-flex justify-content-between align-items-center">
-                                <a href="{{ path('app_post_show', {'id': post.id}) }}" class="btn btn-primary">Read More</a>
-
-                                <div class="d-flex align-items-center" data-post-id="{{ post.id }}">
-                                    <button class="btn btn-sm btn-outline-success me-2 react-btn {{ post.isLikedByUser(app.user) ? 'active' : '' }}" data-type="like">
-                                        <i class="bi bi-heart{{ post.isLikedByUser(app.user) ? '-fill' : '' }}"></i>
-                                        <span class="likes-count">{{ post.likesCount }}</span>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger react-btn {{ post.isDislikedByUser(app.user) ? 'active' : '' }}" data-type="dislike">
-                                        <i class="bi bi-heart-break{{ post.isDislikedByUser(app.user) ? '-fill' : '' }}"></i>
-                                        <span class="dislikes-count">{{ post.dislikesCount }}</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="alert alert-info">
-                    <h4>Your feed is empty!</h4>
-                    <p>Find some users to follow to see their posts here.</p>
-                    <a href="{{ path('app_post_index') }}" class="btn btn-primary">Browse All Posts</a>
-                </div>
-            {% endif %}
-        </div>
-
-        {# Add infinite scroll #}
     </div>
 {% endblock %}
 
