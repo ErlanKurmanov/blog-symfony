@@ -1,9 +1,9 @@
 <div id="post-feed">
     {% if posts is not empty %}
         {% for post in posts %}
-            <div class="card mb-4" style="width: 100%; max-width: 800px; margin: 0 auto;">
+            <div class="card mb-4" style="width: 100%; max-width: 400px; margin: 0 auto;">
                 {% if post.image %}
-                    <img src="{{ '/images/' ~ post.image }}"
+                    <img src="{{ '/images/posts/' ~ post.image }}"
                          class="card-img-top"
                          alt="Image for {{ post.title }}"
                          style="height: 300px; object-fit: cover;">
@@ -19,6 +19,17 @@
                     <h6 class="card-subtitle mb-2 text-muted">
                         by {{ post.author.email }} on {{ post.createdAt|date('M j, Y') }}
                     </h6>
+
+                    {% if app.user and post.author.id != app.user.id %}
+                    <button class="btn btn-sm follow-btn {{ app.user.following.contains(post.author) ? 'btn btn-warning' : 'btn-outline-primary' }}"
+                            data-user-id="{{ post.author.id }}"
+                            data-following="{{ app.user.following.contains(post.author) ? 'true' : 'false' }}">
+                        {{ app.user.following.contains(post.author) ? 'Unfollow' : 'Follow' }}
+                    </button>
+                    {% endif %}
+
+                    <br><br>
+
                     <p class="card-text">
                         {% if post.content|length > 200 %}
                             {{ post.content|slice(0, 200)|nl2br }}...

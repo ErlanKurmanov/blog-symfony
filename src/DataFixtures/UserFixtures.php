@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\User;
+use App\Enum\UserRole;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -20,85 +21,99 @@ class UserFixtures extends Fixture
     {
         $users = [
             [
+                'name' => 'Admin',
                 'email' => 'admin@example.com',
-                'roles' => ['ROLE_ADMIN'],
+                'role' => UserRole::ADMIN,
                 'password' => 'admin123',
                 'isVerified' => true,
             ],
             [
+                'name' => 'John',
                 'email' => 'john.doe@example.com',
-                'roles' => ['ROLE_USER'],
+                'role' => UserRole::ADMIN,
                 'password' => 'password123',
                 'isVerified' => true,
             ],
             [
+                'name' => 'Jane',
                 'email' => 'jane.smith@example.com',
-                'roles' => ['ROLE_USER'],
+                'role' => UserRole::USER,
                 'password' => 'password123',
                 'isVerified' => true,
             ],
             [
-                'email' => 'mike.wilson@example.com',
-                'roles' => ['ROLE_USER'],
-                'password' => 'password123',
+                'name' => 'Alice',
+                'email' => 'alice.wonder@example.com',
+                'role' => UserRole::USER,
+                'password' => 'wonderland',
                 'isVerified' => true,
             ],
             [
-                'email' => 'sarah.johnson@example.com',
-                'roles' => ['ROLE_USER'],
-                'password' => 'password123',
+                'name' => 'Bob',
+                'email' => 'bob.builder@example.com',
+                'role' => UserRole::USER,
+                'password' => 'buildit',
                 'isVerified' => true,
             ],
             [
-                'email' => 'david.brown@example.com',
-                'roles' => ['ROLE_USER'],
-                'password' => 'password123',
-                'isVerified' => true,
-            ],
-            [
-                'email' => 'lisa.davis@example.com',
-                'roles' => ['ROLE_USER'],
-                'password' => 'password123',
-                'isVerified' => true,
-            ],
-            [
-                'email' => 'robert.taylor@example.com',
-                'roles' => ['ROLE_USER'],
-                'password' => 'password123',
-                'isVerified' => true,
-            ],
-            [
-                'email' => 'emily.white@example.com',
-                'roles' => ['ROLE_USER'],
-                'password' => 'password123',
-                'isVerified' => true,
-            ],
-            [
-                'email' => 'alex.garcia@example.com',
-                'roles' => ['ROLE_USER'],
-                'password' => 'password123',
-                'isVerified' => true,
-            ],
-            [
-                'email' => 'chris.martin@example.com',
-                'roles' => ['ROLE_USER'],
-                'password' => 'password123',
-                'isVerified' => true,
-            ],
-            [
-                'email' => 'newuser@example.com',
-                'roles' => ['ROLE_USER'],
-                'password' => 'password123',
+                'name' => 'Charlie',
+                'email' => 'charlie.chaplin@example.com',
+                'role' => UserRole::USER,
+                'password' => 'silentfilm',
                 'isVerified' => false,
             ],
+            [
+                'name' => 'Diana',
+                'email' => 'diana.prince@example.com',
+                'role' => UserRole::ADMIN,
+                'password' => 'amazongal',
+                'isVerified' => true,
+            ],
+            [
+                'name' => 'Eve',
+                'email' => 'eve.harrington@example.com',
+                'role' => UserRole::USER,
+                'password' => 'secretagent',
+                'isVerified' => true,
+            ],
+            [
+                'name' => 'Frank',
+                'email' => 'frank.sinatra@example.com',
+                'role' => UserRole::USER,
+                'password' => 'myway',
+                'isVerified' => true,
+            ],
+            [
+                'name' => 'Grace',
+                'email' => 'grace.hopper@example.com',
+                'role' => UserRole::ADMIN,
+                'password' => 'debugme',
+                'isVerified' => true,
+            ],
+            [
+                'name' => 'Harry',
+                'email' => 'harry.potter@example.com',
+                'role' => UserRole::USER,
+                'password' => 'hogwarts',
+                'isVerified' => true,
+            ],
+            [
+                'name' => 'Igor',
+                'email' => 'igor.tech@example.com',
+                'role' => UserRole::USER,
+                'password' => 'moreusers',
+                'isVerified' => true,
+            ]
         ];
+
 
         $createdUsers = [];
 
         foreach ($users as $index => $userData) {
             $user = new User();
+            $user->setName($userData['name']);
             $user->setEmail($userData['email']);
-            $user->setRoles($userData['roles']);
+            $user->setRole($userData['role']);
             $user->setIsVerified($userData['isVerified']);
 
             $hashedPassword = $this->passwordHasher->hashPassword($user, $userData['password']);

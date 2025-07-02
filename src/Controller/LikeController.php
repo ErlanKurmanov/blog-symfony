@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class LikeController extends AbstractController
+final class LikeController extends AbstractController
 {
     public function __construct(
         private readonly LikeServiceInterface $likeService,

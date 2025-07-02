@@ -32,6 +32,7 @@ final class PostController extends AbstractController
         $latestPosts = $this->postRepository->findLatestPosts(5);
         return $this->render('post/index.html.twig', [
             'posts' => $latestPosts,
+            'title' => 'All Posts',
         ]);
     }
 
@@ -41,6 +42,33 @@ final class PostController extends AbstractController
         $offset = $request->query->getInt('offset', 0);
         $limit = $request->query->getInt('limit', 5);
         $feed = $this->postService->getFeedChunk($offset, $limit);
+
+        return new JsonResponse($feed);
+    }
+
+    #[Route('/my-post', name: 'app_user_posts', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function getMyPost()
+    {
+        $user = $this->getUser();
+        $posts = $user->getPosts();
+        return $this->render(
+            'post/index.html.twig', [
+                'posts' => $posts,
+                'title' => 'My Posts',
+            ]
+        );
+    }
+
+    #[Route('/my-post/feed', name: 'app_my_post_feed_chunk', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function getMyPostFeedChunk(Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        $offset = $request->query->getInt('offset', 0);
+        $limit = $request->query->getInt('limit', 5);
+
+        $feed = $this->postService->getUserPostsChunk($user, $offset, $limit);
 
         return new JsonResponse($feed);
     }
