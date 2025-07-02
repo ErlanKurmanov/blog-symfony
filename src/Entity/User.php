@@ -2,17 +2,24 @@
 
 namespace App\Entity;
 
+use App\Enum\UserRole;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[Vich\Uploadable]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -26,8 +33,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var list<string> The user roles
      */
-    #[ORM\Column]
-    private array $roles = [];
+    #[ORM\Column(enumType: UserRole::class)]
+    private UserRole $role = UserRole::USER;
 
     /**
      * @var string The hashed password
@@ -57,6 +64,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'author', orphanRemoval: true)]
     private Collection $posts;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $name = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $surname = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $profileImage = null;
+
+    #[Vich\UploadableField(mapping: 'profile_images', fileNameProperty: 'profileImage')]
+    #[Ignore]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $updatedAt = null;
     public function __construct()
     {
         $this->posts = new ArrayCollection();
@@ -86,16 +108,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
-    public function getRoles(): array
+
+    public function getRole(): UserRole
     {
-        $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
-        return array_unique($roles);
+        return $this->role;
     }
 
-    public function setRoles(array $roles): static
+    public function getRoles(): array
     {
-        $this->roles = $roles;
+        return [$this->role->value];
+    }
+
+    public function setRole(UserRole $role): static
+    {
+        $this->role = $role;
         return $this;
     }
 
@@ -204,11 +230,79 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removePostLike(PostLike $postLike): static
     {
         if ($this->postLikes->removeElement($postLike)) {
-            // set the owning side to null (unless already changed)
             if ($postLike->getUser() === $this) {
                 $postLike->setUser(null);
             }
         }
         return $this;
     }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getSurname(): ?string
+    {
+        return $this->surname;
+    }
+
+    public function setSurname(?string $surname): static
+    {
+        $this->surname = $surname;
+
+        return $this;
+    }
+
+
+    public function setProfileImage(?string $profileImage): void
+    {
+        $this->profileImage = $profileImage;
+    }
+
+    public function getProfileImage(): ?string
+    {
+        return $this->profileImage;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    /**
+     * Get the image file
+     */
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+
+
+
 }

@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="h3 mb-0">Edit Profile</h1>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.name) }}
+                            {{ form_widget(form.name) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.surname) }}
+                            {{ form_widget(form.surname) }}
+                            {{ form_errors(form.surname) }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.email) }}
+                        {{ form_widget(form.email) }}
+                        {{ form_errors(form.email) }}
+                        <div class="form-text">
+                            <small class="text-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                If you change your email, you will be logged out and have to verify your new email.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.imageFile) }}
+                        {{ form_widget(form.imageFile) }}
+                        {{ form_errors(form.imageFile) }}
+                        {% if user.profileImage %}
+                            <div class="mt-2">
+                                <img src="{{ '/images/profiles/' ~ user.profileImage }}"
+                                     alt="Current profile image"
+                                     class="img-thumbnail"
+                                     style="max-width: 150px; height: 150px; object-fit: cover;">
+                                <p class="text-muted small mt-1">Current profile image</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form_label(form.plainPassword) }}
+                        {{ form_widget(form.plainPassword) }}
+                        {{ form_errors(form.plainPassword) }}
+                        <div class="form-text">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i>
+                                Leave blank to keep your current password.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{{ path('app_my_profile') }}" class="btn btn-outline-secondary ms-2">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Update Profile
+                            </button>
+                        </div>
+
+                        <div>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                <i class="bi bi-trash"></i> Delete Account
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <!-- Account Statistics -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Account Overview</h5>
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h6 class="text-primary">{{ user.posts.count }}</h6>
+                                <small class="text-muted">Posts</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h6 class="text-success">{{ user.followers.count }}</h6>
+                                <small class="text-muted">Followers</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h6 class="text-info">{{ user.following.count }}</h6>
+                                <small class="text-muted">Following</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <h6 class="{{ user.isVerified ? 'text-success' : 'text-warning' }}">
+                                {% if user.isVerified %}
+                                    <i class="bi bi-check-circle-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                {% endif %}
+                            </h6>
+                            <small class="text-muted">{{ user.isVerified ? 'Verified' : 'Unverified' }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Enum\UserRole;
 use App\Form\RegistrationForm;
 use App\Security\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
-class RegistrationController extends AbstractController
+final class RegistrationController extends AbstractController
 {
     public function __construct(private EmailVerifier $emailVerifier)
     {
@@ -34,6 +35,8 @@ class RegistrationController extends AbstractController
             $plainPassword = $form->get('plainPassword')->getData();
 
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
+
+            $user->setRole(UserRole::USER);
 
             $entityManager->persist($user);
             $entityManager->flush();

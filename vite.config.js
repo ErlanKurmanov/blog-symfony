@@ -21,7 +21,8 @@ export default defineConfig({
                 app: "./assets/app.js",
                 // react: "./assets/react.js",
                 reactions: "./assets/reactions-jquery.js",
-                infiniteScroll: "./assets/infiniteScroll.js"
+                infiniteScroll: "./assets/infiniteScroll.js",
+                follow: "./assets/follow.js"
 
             },
         }

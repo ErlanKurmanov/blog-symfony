@@ -8,7 +8,7 @@
             <div class="col-md-8">
                 <article class="card">
                     {% if post.image %}
-                        <img src="{{ '/images/' ~ post.image }}"
+                        <img src="{{ '/images/posts/' ~ post.image }}"
                              class="card-img-top"
                              alt="{{ post.title }}"
                              style="max-height: 400px; object-fit: cover;">
@@ -23,6 +23,8 @@
                                 <br><small>(Updated: {{ post.updatedAt|date('F j, Y \a\t g:i A') }})</small>
                             {% endif %}
                         </h6>
+
+                        
 
                         <div class="card-text">
                             {{ post.content|nl2br }}
