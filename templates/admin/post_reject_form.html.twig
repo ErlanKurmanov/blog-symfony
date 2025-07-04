@@ -1,0 +1,51 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block content_title %}Reject Post: {{ post.title }}{% endblock %}
+
+{% block main %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Post Details</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title">{{ post.title }}</h6>
+                    <p class="card-text"><strong>Author:</strong> {{ post.author.email }}</p>
+                    <p class="card-text"><strong>Created:</strong> {{ post.createdAt|date('d/m/Y H:i') }}</p>
+                    <p class="card-text">{{ post.content|slice(0, 300) }}{% if post.content|length > 300 %}...{% endif %}</p>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Reject Post</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{{ path('admin') }}">
+                        <input type="hidden" name="crudAction" value="rejectPost">
+                        <input type="hidden" name="crudControllerFqcn" value="App\Controller\Admin\PostCrudController">
+                        <input type="hidden" name="entityId" value="{{ post.id }}">
+
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Rejection Reason <span class="text-danger">*</span></label>
+                            <textarea name="reason" id="reason" class="form-control" rows="4" required
+                                      placeholder="Please provide a reason for rejecting this post..."></textarea>
+                            <div class="form-text">This reason will be sent to the author via email.</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('admin') }}?crudAction=index&crudControllerFqcn=App\\Controller\\Admin\\PostCrudController"
+                               class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-times"></i> Reject Post
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

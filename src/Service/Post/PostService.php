@@ -24,7 +24,7 @@ class PostService implements PostServiceInterface
     public function getFeedChunk(int $offset, int $limit): array
     {
 
-        $posts = $this->postRepository->findLatestPosts($limit, $offset);
+        $posts = $this->postRepository->findLatestPosts($limit);
 
         $totalPostsCount = $this->postRepository->countAllPosts();
         $hasMore = ($offset + count($posts)) < $totalPostsCount;

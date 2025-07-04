@@ -54,10 +54,25 @@ class Post
     #[ORM\Column(type: 'integer')]
     private int $dislikesCount = 0;
 
+    // New approval fields
+    #[ORM\Column(type: 'string', length: 20, options: ['default' => 'pending'])]
+    private string $status = 'pending'; // pending, approved, rejected
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $approvedBy = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $approvedAt = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $rejectionReason = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->postLikes = new ArrayCollection();
+        $this->status = 'pending';
     }
 
     #[ORM\PrePersist]
@@ -159,7 +174,6 @@ class Post
     public function removePostLike(PostLike $postLike): static
     {
         if ($this->postLikes->removeElement($postLike)) {
-            // set the owning side to null (unless already changed)
             if ($postLike->getPost() === $this) {
                 $postLike->setPost(null);
             }
@@ -167,25 +181,16 @@ class Post
         return $this;
     }
 
-    /**
-     * Get count of likes for this post
-     */
     public function getLikesCount(): int
     {
         return $this->likesCount;
     }
 
-    /**
-     * Get count of dislikes for this post
-     */
     public function getDislikesCount(): int
     {
         return $this->dislikesCount;
     }
 
-    /**
-     * Check if user has liked this post
-     */
     public function isLikedByUser(?User $user): bool
     {
         if (!$user) {
@@ -200,9 +205,6 @@ class Post
         return false;
     }
 
-    /**
-     * Check if user has disliked this post
-     */
     public function isDislikedByUser(?User $user): bool
     {
         if (!$user) {
@@ -260,9 +262,6 @@ class Post
         $this->dislikesCount--;
     }
 
-    /**
-     * Set the image file
-     */
     public function setImageFile(?File $imageFile = null): void
     {
         $this->imageFile = $imageFile;
@@ -272,11 +271,94 @@ class Post
         }
     }
 
-    /**
-     * Get the image file
-     */
     public function getImageFile(): ?File
     {
         return $this->imageFile;
+    }
+
+    // New approval methods
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getApprovedBy(): ?User
+    {
+        return $this->approvedBy;
+    }
+
+    public function setApprovedBy(?User $approvedBy): static
+    {
+        $this->approvedBy = $approvedBy;
+        return $this;
+    }
+
+    public function getApprovedAt(): ?\DateTimeImmutable
+    {
+        return $this->approvedAt;
+    }
+
+    public function setApprovedAt(?\DateTimeImmutable $approvedAt): static
+    {
+        $this->approvedAt = $approvedAt;
+        return $this;
+    }
+
+    public function getRejectionReason(): ?string
+    {
+        return $this->rejectionReason;
+    }
+
+    public function setRejectionReason(?string $rejectionReason): static
+    {
+        $this->rejectionReason = $rejectionReason;
+        return $this;
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
+    }
+
+    public function approve(User $admin): void
+    {
+        $this->status = 'approved';
+        $this->approvedBy = $admin;
+        $this->approvedAt = new \DateTimeImmutable();
+        $this->rejectionReason = null;
+    }
+
+    public function reject(User $admin, ?string $reason = null): void
+    {
+        $this->status = 'rejected';
+        $this->approvedBy = $admin;
+        $this->approvedAt = new \DateTimeImmutable();
+        $this->rejectionReason = $reason;
+    }
+
+    public function getStatusBadgeClass(): string
+    {
+        return match($this->status) {
+            'approved' => 'success',
+            'rejected' => 'danger',
+            'pending' => 'warning',
+            default => 'secondary'
+        };
     }
 }
