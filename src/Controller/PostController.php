@@ -6,6 +6,7 @@ use App\Entity\Post;
 use App\Form\PostForm;
 use App\Repository\PostRepository;
 use App\Service\Post\PostServiceInterface;
+use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,7 +22,8 @@ final class PostController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly PostRepository $postRepository,
-        private readonly PostServiceInterface $postService
+        private readonly PostServiceInterface $postService,
+        private readonly EmailService $emailService
     )
     {
     }
@@ -86,7 +88,9 @@ final class PostController extends AbstractController
             $this->entityManager->persist($post);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Post created successfully!');
+            $this->emailService->sendNewPostNotificationToAdmins($post);
+
+            $this->addFlash('success', 'Post created successfully! It is now pending admin approval.');
             return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -99,6 +103,15 @@ final class PostController extends AbstractController
     #[Route('/{id}', name: 'app_post_show', methods: ['GET'])]
     public function show(Post $post): Response
     {
+        $user = $this->getUser();
+
+        if (
+            !$post->isApproved() &&
+            !($user && ($post->isAuthor($user) || in_array('ROLE_ADMIN', $user->getRoles())))
+        ) {
+            throw $this->createNotFoundException('Post not found or not yet approved.');
+        }
+
         return $this->render('post/show.html.twig', [
             'post' => $post,
         ]);
@@ -113,12 +126,21 @@ final class PostController extends AbstractController
             return $this->redirectToRoute('app_post_index');
         }
 
+        if ($post->isApproved()) {
+            $this->addFlash('error', 'You cannot edit an approved post.');
+            return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
+        }
+
         $form = $this->createForm(PostForm::class, $post);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $post->setStatus('pending');
             $this->entityManager->flush();
-            $this->addFlash('success', 'Post updated successfully!');
+
+            $this->emailService->sendNewPostNotificationToAdmins($post);
+
+            $this->addFlash('success', 'Post updated successfully! It is now pending admin approval again.');
             return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
         }
 

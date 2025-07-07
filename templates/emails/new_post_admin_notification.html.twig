@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>New Post Pending Approval</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        .content { background: #fff; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px; }
+        .btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        .post-preview { background: #f8f9fa; padding: 15px; border-left: 4px solid #007bff; margin: 15px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>New Post Pending Approval</h2>
+    </div>
+
+    <div class="content">
+        <p>Hello Admin,</p>
+
+        <p>A new post has been submitted and is waiting for your approval:</p>
+
+        <div class="post-preview">
+            <h3>{{ post.title }}</h3>
+            <p><strong>Author:</strong> {{ post.author.email }}</p>
+            <p><strong>Submitted:</strong> {{ post.createdAt|date('F j, Y \a\t g:i A') }}</p>
+            <p><strong>Content Preview:</strong></p>
+            <p>{{ post.content|slice(0, 200) }}{% if post.content|length > 200 %}...{% endif %}</p>
+        </div>
+
+        <p>Please review this post in the admin panel:</p>
+
+        <a href="{{ adminUrl }}" class="btn">Review in Admin Panel</a>
+
+        <p style="margin-top: 20px;">
+            <small>This is an automated notification from your blog system.</small>
+        </p>
+    </div>
+</div>
+</body>
+</html>

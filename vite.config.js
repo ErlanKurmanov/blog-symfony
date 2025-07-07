@@ -13,7 +13,9 @@ export default defineConfig({
             $: 'jquery',
             jQuery: 'jquery',
         }),
-        symfonyPlugin(),
+        symfonyPlugin({
+            stimulus: true
+        }),
     ],
     build: {
         rollupOptions: {

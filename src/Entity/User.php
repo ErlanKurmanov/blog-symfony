@@ -31,7 +31,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     /**
-     * @var list<string> The user roles
+     * @var UserRole The user role
      */
     #[ORM\Column(enumType: UserRole::class)]
     private UserRole $role = UserRole::USER;
@@ -79,6 +79,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
@@ -108,7 +109,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
-
     public function getRole(): UserRole
     {
         return $this->role;
@@ -116,7 +116,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        return [$this->role->value];
+        $roles = [];
+
+        $roles[] = 'ROLE_USER';
+
+        if ($this->role === UserRole::ADMIN) {
+            $roles[] = 'ROLE_ADMIN';
+        }
+
+        error_log('User roles for ' . $this->email . ': ' . json_encode($roles));
+
+        return array_unique($roles);
     }
 
     public function setRole(UserRole $role): static
@@ -245,7 +255,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -257,10 +266,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setSurname(?string $surname): static
     {
         $this->surname = $surname;
-
         return $this;
     }
-
 
     public function setProfileImage(?string $profileImage): void
     {
@@ -280,10 +287,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
-
         return $this;
     }
-
 
     public function setImageFile(?File $imageFile = null): void
     {
@@ -301,8 +306,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->imageFile;
     }
-
-
-
-
 }

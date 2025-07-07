@@ -1,0 +1,16 @@
+.git
+.gitignore
+README.md
+.env*
+.editorconfig
+docker/
+Dockerfile
+.dockerignore
+node_modules/
+npm-debug.log
+var/cache/
+var/log/
+tests/
+phpunit.dist.xml
+.phpunit.result.cache
+*.md
