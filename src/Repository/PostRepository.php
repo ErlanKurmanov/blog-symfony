@@ -26,7 +26,9 @@ class PostRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('p')
             ->where('p.author IN (:authors)')
+            ->andWhere('p.status = :status')
             ->setParameter('authors', $authors)
+            ->setParameter('status', 'approved')
             ->orderBy('p.createdAt', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
@@ -60,6 +62,8 @@ class PostRepository extends ServiceEntityRepository
     public function countAllPosts(): int
     {
         return $this->createQueryBuilder('p')
+            ->where('p.status = :status')
+            ->setParameter('status', 'approved')
             ->select('COUNT(p.id)')
             ->getQuery()
             ->getSingleScalarResult();

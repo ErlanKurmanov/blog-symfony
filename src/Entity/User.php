@@ -118,15 +118,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = [];
 
-        // Always add ROLE_USER as base role
         $roles[] = 'ROLE_USER';
 
-        // Add the specific role based on the enum
         if ($this->role === UserRole::ADMIN) {
             $roles[] = 'ROLE_ADMIN';
         }
 
-        // Debug: log what roles are being returned
         error_log('User roles for ' . $this->email . ': ' . json_encode($roles));
 
         return array_unique($roles);

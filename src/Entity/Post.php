@@ -276,7 +276,6 @@ class Post
         return $this->imageFile;
     }
 
-    // New approval methods
     public function getStatus(): string
     {
         return $this->status;

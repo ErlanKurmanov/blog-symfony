@@ -31,7 +31,6 @@ final class PostController extends AbstractController
     #[Route('', name: 'app_post_index', methods: ['GET'])]
     public function index(): Response
     {
-        // Only show approved posts to regular users
         $latestPosts = $this->postRepository->findLatestPosts(5);
         return $this->render('post/index.html.twig', [
             'posts' => $latestPosts,
@@ -86,7 +85,6 @@ final class PostController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $post->setAuthor($this->getUser());
-            // Post is created with 'pending' status by default
             $this->entityManager->persist($post);
             $this->entityManager->flush();
 
@@ -105,8 +103,12 @@ final class PostController extends AbstractController
     #[Route('/{id}', name: 'app_post_show', methods: ['GET'])]
     public function show(Post $post): Response
     {
-        // Only allow viewing approved posts, unless it's the author viewing their own post
-        if (!$post->isApproved() && (!$this->getUser() || !$post->isAuthor($this->getUser()))) {
+        $user = $this->getUser();
+
+        if (
+            !$post->isApproved() &&
+            !($user && ($post->isAuthor($user) || in_array('ROLE_ADMIN', $user->getRoles())))
+        ) {
             throw $this->createNotFoundException('Post not found or not yet approved.');
         }
 
@@ -124,7 +126,6 @@ final class PostController extends AbstractController
             return $this->redirectToRoute('app_post_index');
         }
 
-        // Don't allow editing approved posts
         if ($post->isApproved()) {
             $this->addFlash('error', 'You cannot edit an approved post.');
             return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
@@ -134,7 +135,6 @@ final class PostController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Reset status to pending when edited
             $post->setStatus('pending');
             $this->entityManager->flush();
 
