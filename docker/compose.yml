@@ -3,7 +3,7 @@ services:
         build:
             context: ..
             dockerfile: docker/Dockerfile
-            target: ${BUILD_TARGET:-development}
+#            target: ${BUILD_TARGET:-development}
         container_name: my_blog_app
         restart: unless-stopped
         volumes:
@@ -14,6 +14,7 @@ services:
             MAILER_DSN: "smtp://mailhog:1025"
             APP_ENV: ${APP_ENV:-dev}
             APP_SECRET: ${APP_SECRET}
+            MESSENGER_TRANSPORT_DSN: redis://redis:6379/messages
         depends_on:
             db:
                 condition: service_healthy
@@ -77,11 +78,13 @@ services:
             - "${MAILHOG_WEB_PORT:-8025}:8025"
         networks:
             - symfony_network
-        profiles:
-            - dev
+#        profiles:
+#            - dev
 
     redis:
         image: redis:7-alpine
+        ports:
+            - "6379:6379"
         container_name: my_blog_redis
         restart: unless-stopped
         volumes:
@@ -93,6 +96,33 @@ services:
             interval: 30s
             timeout: 10s
             retries: 3
+
+    messenger-worker:
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile
+#            target: ${BUILD_TARGET:-development}
+        container_name: my_blog_messenger_worker
+        restart: unless-stopped
+        volumes:
+            - ${VOLUME_MOUNT:-../}:/var/www/html
+        environment:
+            DATABASE_URL: "mysql://${DB_USER:-user}:${DB_PASSWORD}@db:3306/${DB_NAME:-blog_db}?serverVersion=8.0.32&charset=utf8mb4"
+            MAILER_DSN: "smtp://mailhog:1025"
+            APP_ENV: ${APP_ENV:-dev}
+            APP_SECRET: ${APP_SECRET}
+            MESSENGER_TRANSPORT_DSN: redis://redis:6379/messages
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        networks:
+            - symfony_network
+        # Run the messenger worker
+        command: [ "php", "bin/console", "messenger:consume", "async", "--limit=100", "--memory-limit=128M", "--time-limit=3600" ]
+#        profiles:
+#            - worker
 
 networks: #// todo - что можно делать с нетворками в докере
     symfony_network:

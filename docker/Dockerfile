@@ -1,4 +1,4 @@
-FROM php:8.3-fpm as php_base
+FROM php:8.3-fpm
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -13,6 +13,10 @@ RUN apt-get update && apt-get install -y \
     curl \
     && docker-php-ext-configure gd --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip intl ctype iconv exif opcache
+
+# Install the Redis extension using PECL
+RUN pecl install redis \
+    && docker-php-ext-enable redis
 
 # Install Node.js for development
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
