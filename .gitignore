@@ -27,4 +27,5 @@
 /node_modules/
 /public/build/
 /public/images/
+/supervisord.log
 ###< pentatrion/vite-bundle ###
