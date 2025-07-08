@@ -1,6 +1,8 @@
 FROM php:8.3-fpm
 
 RUN apt-get update && apt-get install -y \
+    supervisor \
+    procps \
     git \
     zip \
     unzip \
@@ -13,6 +15,9 @@ RUN apt-get update && apt-get install -y \
     curl \
     && docker-php-ext-configure gd --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip intl ctype iconv exif opcache
+
+# Create Supervisor directories
+RUN mkdir -p /var/log/supervisor /etc/supervisor/conf.d
 
 # Install the Redis extension using PECL
 RUN pecl install redis \
@@ -38,6 +43,12 @@ RUN mkdir -p var/cache var/log public/uploads \
     && chown -R www-data:www-data var public \
     && chmod -R 775 var
 
-EXPOSE 9000
-CMD ["php-fpm"]
+# Copy Supervisor config files
+COPY docker/supervisord.conf /etc/supervisord.conf
+# Copy all supervisor program configs
+COPY docker/supervisor/*.conf /etc/supervisor/conf.d/
 
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+
+EXPOSE 9000
