@@ -143,6 +143,16 @@ class PostRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    public function findOlderThan(\DateTimeInterface $date): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.createdAt < :date')
+            ->andWhere('p.isExpired = false')
+            ->setParameter('date', $date)
+            ->getQuery()
+            ->getResult();
+    }
+
     /**
      * Find pending posts for admin review
      */

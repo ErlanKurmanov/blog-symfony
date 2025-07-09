@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libonig-dev \
     curl \
+    cron \
     && docker-php-ext-configure gd --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip intl ctype iconv exif opcache
 
@@ -44,10 +45,12 @@ RUN mkdir -p var/cache var/log public/uploads \
     && chmod -R 775 var
 
 # Copy Supervisor config files
-COPY docker/supervisord.conf /etc/supervisord.conf
+COPY ./docker/supervisord.conf /etc/supervisord.conf
 # Copy all supervisor program configs
-COPY docker/supervisor/*.conf /etc/supervisor/conf.d/
+COPY ./docker/supervisor/*.conf /etc/supervisor/conf.d/
 
+COPY ./docker/crontab /etc/cron.d/my-cron
+RUN chmod 0644 /etc/cron.d/my-cron
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
 

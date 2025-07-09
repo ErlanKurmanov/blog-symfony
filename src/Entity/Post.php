@@ -32,6 +32,9 @@ class Post
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $isExpired = false;
+
     #[ORM\ManyToOne(inversedBy: 'posts')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null;
@@ -359,5 +362,16 @@ class Post
             'pending' => 'warning',
             default => 'secondary'
         };
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->isExpired;
+    }
+
+    public function setIsExpired(bool $expired): self
+    {
+        $this->isExpired = $expired;
+        return $this;
     }
 }

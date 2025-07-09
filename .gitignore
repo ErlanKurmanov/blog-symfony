@@ -29,3 +29,4 @@
 /public/images/
 /supervisord.log
 ###< pentatrion/vite-bundle ###
+/supervisord.pid
